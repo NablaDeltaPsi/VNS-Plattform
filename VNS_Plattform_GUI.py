@@ -1,3 +1,6 @@
+
+global GUI_version; GUI_version = '1.1'
+
 import tkinter as tk
 import tkinter.filedialog
 import os
@@ -97,11 +100,11 @@ def calc_vns(SHOW_PLOT, path, BG, L, D, H, Hmin):
             os.makedirs(path)
         with open(os.path.join(path, BASENAME + "_Parameter.dat"), 'w') as f:
             for key in param:
-                if key[-1] == "_":
+                if key in ['BG', 'SW']:
                     f.write(str(key) + ":  \t" + "%.2f" % (param[key] * 180 / np.pi) + "\n")
                     #print(str(key) + ": " + "%.2f" % (param[key] * 180 / np.pi))
                 else:
-                    f.write(str(key) + ":  \t" + "%.0f" % (param[key]) + "\n")
+                    f.write(str(key) + ":  \t" + "%.2f" % (param[key]) + "\n")
                     #print(str(key) + ": " + "%.0f" % (param[key]))
 
 
@@ -397,7 +400,7 @@ class NewGUI():
     def __init__(self):
         
         self.root = tk.Tk()
-        self.root.title("VNS-Plattform (1.0)")
+        self.root.title("VNS-Plattform (" + GUI_version + ")")
         self.root.resizable(width=False, height=False)
         self.complete = 0
 
