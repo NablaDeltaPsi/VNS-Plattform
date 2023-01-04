@@ -1,6 +1,4 @@
-VNS_Plattform.py
-
-Programm zur Berechnung der Form von Vertikalsegmenten für EQ-Plattformen
+Python-GUI zur Berechnung der Form von Vertikalsegmenten für EQ-Plattformen
 
 Für Windows-Benutzer ist unter Releases eine ZIP-Datei mit kompiliertem Programm verfügbar. Zum Starten nach Herunterladen und Entzippen "Sonnensystem.exe" ausführen.
 
