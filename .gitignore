@@ -1,0 +1,6 @@
+/dist
+/releases
+/build
+/__pycache__
+/pyinstaller*
+/*.spec
