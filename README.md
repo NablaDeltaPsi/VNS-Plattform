@@ -1,6 +1,6 @@
 Python-GUI zur Berechnung der Form von Vertikalsegmenten für EQ-Plattformen
 
-Für Windows-Benutzer ist unter Releases eine ZIP-Datei mit kompiliertem Programm verfügbar. Zum Starten nach Herunterladen und Entzippen "Sonnensystem.exe" ausführen.
+Für Windows-Benutzer ist unter Releases eine ZIP-Datei mit kompiliertem Programm verfügbar. Zum Starten nach Herunterladen und Entzippen "VNS_Plattform_GUI.exe" ausführen.
 
 ###################################################
 
