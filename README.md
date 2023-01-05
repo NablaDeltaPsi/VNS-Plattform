@@ -12,7 +12,7 @@ Mit diesem Programm kann man die Vertikalsegmente ohne Näherung auf die Ellipse
 
 3D-Ansicht der Plattform mit berechneten Segmenten:
 
-![grafik](https://user-images.githubusercontent.com/98178269/210774526-2748ab41-bd24-4aae-a96e-9d0dc8bbd64c.png)
+![611d04_fb9863da12954d2ea040b54abf5b4810~mv2](https://user-images.githubusercontent.com/98178269/210785812-c19b3f93-cd64-4d1b-8ea3-df56e2a87cb7.gif)
 
 PDF der Segmente in Originalgröße:
 
