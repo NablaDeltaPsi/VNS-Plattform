@@ -62,7 +62,8 @@ def perp_point(point_a1, point_b1, point_b2):
     t = np.dot(v, point_b_norm)
     return point_b1 + t * point_b_norm
 
-def calc_vns(SHOW_PLOT, path, BG, L, D, H, Hmin):
+def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
+
 
     ###############################################################
     # PARAMETER
@@ -76,26 +77,15 @@ def calc_vns(SHOW_PLOT, path, BG, L, D, H, Hmin):
     param['Hmin'] = float(Hmin)
     param['J']  = param['L'] + param['D'] * np.tan(param['SW'])
 
-    # Ansicht
-    MAX_THETA_SEGMENTE = 30
-    LOOP_THETAS = [0]
-    #LOOP_THETAS = np.arange(10,-10.5,-0.5)
-    VIEW_SEGMENTEBENEN = 0
-    if not path:
-        SAVE_FILES = 0
-    else:
-        SAVE_FILES = 1
-
     # Namen
     BASENAME = "Segment" +  "_BG-" + str(int(round(180 / np.pi * param['BG'] * 10, 0))) + \
                             "_L-" + str(int(param['L'])) + \
                             "_D-" + str(int(param['D'])) + \
                             "_H-" + str(int(param['H']))
-    
     print(BASENAME)
         
     # Parameter speichern
-    if SAVE_FILES:
+    if mode==0 and not not path:
         if not os.path.exists(path):
             os.makedirs(path)
         with open(os.path.join(path, BASENAME + "_Parameter.dat"), 'w') as f:
@@ -123,6 +113,8 @@ def calc_vns(SHOW_PLOT, path, BG, L, D, H, Hmin):
     rot_vectors = copy.deepcopy(vectors)
     new_rot_vectors = copy.deepcopy(vectors)    
     
+    
+    
     ###############################################################
     # BERECHNUNG DER SEGMENTE
 
@@ -131,7 +123,7 @@ def calc_vns(SHOW_PLOT, path, BG, L, D, H, Hmin):
     segmentwinkel = []
     segmentgeschwindigkeit = []
     segmentlageroffset = []
-    for th in np.arange(MAX_THETA_SEGMENTE, -MAX_THETA_SEGMENTE-0.3, -0.3):
+    for th in np.arange(30, -30-0.3, -0.3):
         for key in vectors:
             if not key in ['suedlager','erdachse','ostlager','westlager']:
                 rot_vectors[key] = vectors['suedlager'] + rot_around(vectors[key] - vectors['suedlager'], np.radians(th), vectors['erdachse'] - vectors['suedlager'])
@@ -210,7 +202,7 @@ def calc_vns(SHOW_PLOT, path, BG, L, D, H, Hmin):
     segmentgeschwindigkeit_norm = [x/min(segmentgeschwindigkeit) for x in segmentgeschwindigkeit]
 
     # Ausgeben und abspeichern
-    if SAVE_FILES:
+    if mode==0 and not not path:
         with open(os.path.join(path, BASENAME + "_Segment.dat"), 'w') as f:
             for i in range(len(segmentpos)):
                 f.write("%.6f" % segmentpos[i] + "\t")
@@ -227,11 +219,6 @@ def calc_vns(SHOW_PLOT, path, BG, L, D, H, Hmin):
             for i in range(len(segmentwinkel)):
                 f.write("%.6f" % segmentwinkel[i] + "\t")
                 f.write("%.6f" % segmentlageroffset[i] + "\n")
-
-
-
-    ###############################################################
-    # PDF des Segments
 
         # din a4
         din_a4_width_mm  = 297
@@ -255,28 +242,31 @@ def calc_vns(SHOW_PLOT, path, BG, L, D, H, Hmin):
         plt.plot(segmentpos, segmenthoehe, linewidth = 0.5, color = 'black') #, marker='.', markersize=0.01, markeredgecolor='black'
         plt.plot([0,0],[-din_a4_height_mm * ax_rel_height * 0.05, din_a4_height_mm * ax_rel_height * 0.95], linewidth=0.5, color='black', linestyle='--')
         plt.text(segmentpos[-2]+3,param['H']/2,BASENAME.replace("_",",  ").replace("-",": "),va='bottom',ha='left')
-        
-        if SAVE_FILES:
-            fig1.savefig(os.path.join(path, BASENAME  + ".pdf"))
-            plt.close(fig1)
+
+        # PDF speichern
+        fig1.savefig(os.path.join(path, BASENAME  + ".pdf"))
+        plt.close(fig1)
+
+
 
     ###############################################################
-    # ZEICHNEN-WINKELSCHLEIFE
+    # Plattform Ansicht
 
-    for THETA in LOOP_THETAS:
-        THETA = THETA + 0.00001 # vertical surfaces impossible to plot
+    if mode in [1,2]:
+
+        theta = theta + 0.00001 # vertical surfaces impossible to plot
 
         # Gehe zu Zeichnen-Position
         for key in vectors:
             if not key in ['suedlager','erdachse','ostlager','westlager']:
-                rot_vectors[key] = vectors['suedlager'] + rot_around(vectors[key] - vectors['suedlager'], np.radians(THETA), vectors['erdachse'] - vectors['suedlager'])
+                rot_vectors[key] = vectors['suedlager'] + rot_around(vectors[key] - vectors['suedlager'], np.radians(theta), vectors['erdachse'] - vectors['suedlager'])
         rot_vectors['ostkontakt'] = line_plane_intersection(rot_vectors['ostsegment'], rot_vectors['nordspitze'], rot_vectors['nordlot'], rot_vectors['ostlager'], rot_vectors['ostlager'])
         rot_vectors['westkontakt'] = line_plane_intersection(rot_vectors['westsegment'], rot_vectors['nordspitze'], rot_vectors['nordlot'], rot_vectors['westlager'], rot_vectors['westlager'])
         rot_vectors['ostref'] = perp_point(rot_vectors['ostkontakt'], rot_vectors['osteck'], rot_vectors['nordspitze'])
         rot_vectors['westref'] = perp_point(rot_vectors['westkontakt'], rot_vectors['westeck'], rot_vectors['nordspitze'])    
 
         # Erzeuge Figure
-        fig2, ax = plt.subplots(subplot_kw={"projection": "3d"}, figsize = (5, 5))
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"}, figsize = (5, 5))
 
         # Plattformebene
         [x,y,z] = points_to_coordinates(
@@ -313,7 +303,7 @@ def calc_vns(SHOW_PLOT, path, BG, L, D, H, Hmin):
         ax.plot(x,y,z, linewidth=1, color='blue')
 
         # Segmentebenen
-        if VIEW_SEGMENTEBENEN:
+        if False:
             [x,y,z] = points_to_coordinates(
                 rot_vectors['nordspitze'],
                 rot_vectors['osteck'] + 0.2 * (rot_vectors['osteck'] - rot_vectors['nordspitze']),
@@ -377,24 +367,16 @@ def calc_vns(SHOW_PLOT, path, BG, L, D, H, Hmin):
             )
         ax.plot_trisurf(x,y,z, color='grey', alpha=0.1)
 
-        # Ansichten
+        # Anzeige
         ax.set_axis_off()
-        views = {'1_oblique': [22, -30], '2_front': [-2.5, 0], '3_top': [90, 0], '4_side': [-2.5, -88], '5_lager': [-2.5, -param['SW']]}
+        plt.show()
 
-        # Speichern
-        if SAVE_FILES:
-            THETA = THETA - 0.000001
-            for key in views.keys():
-                ax.view_init(views[key][0], views[key][1])
-                plt.savefig(os.path.join(path, BASENAME  + "_SE_" + str(VIEW_SEGMENTEBENEN) + "_VIEW_" + str(key) +
-                            "_TH_" + "%04d" % ((THETA+100)*10) + ".png"),
-                            bbox_inches='tight',pad_inches = 0, dpi=300)
-            ax.view_init(views['1_oblique'][0], views['1_oblique'][1])
-                
-        if len(LOOP_THETAS) == 1 and SHOW_PLOT:
-            plt.show()
-        else:
+        # GIF
+        if mode==2 and not not path:
+            ani = FuncAnimation(fig, animate, interval=40, blit=True, repeat=True, frames=100)    
+            ani.save(os.path.join(path, BASENAME + ".gif"), dpi=300, writer=PillowWriter(fps=25))
             plt.close()
+                
 
 class NewGUI():
     def __init__(self):
@@ -520,13 +502,19 @@ class NewGUI():
         
     def show(self):
         if self.complete:
-            calc_vns(1, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get())
+            calc_vns(1, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 5)
 
     def save(self):
         path = tk.filedialog.askdirectory()
         print(path)
         if path and self.complete:
-            calc_vns(0, path, self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get())
+            calc_vns(0, path, self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
+
+    def loop(self):
+        path = tk.filedialog.askdirectory()
+        print(path)
+        if path and self.complete:
+            calc_vns(2, path, self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
 
     def check_entries(self, *args):
         process_entry(self.entry_BG,   self.result_BG)
