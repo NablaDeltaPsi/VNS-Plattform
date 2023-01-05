@@ -252,6 +252,8 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
         
         if mode == 2:
             mpl.use("Agg")
+        else:
+            mpl.use("Qt5Agg")
         
         theta = theta + 0.00001 # vertical surfaces impossible to plot
 
@@ -409,7 +411,7 @@ class NewGUI():
         else:
             pix_per_pts = self.root.winfo_fpixels('1p')
             print("%.2f" % pix_per_pts + " pixels per point")
-            img = ImageTk.PhotoImage(Image.open('VNS_Plattform_Skizze.png').resize((int(160*pix_per_pts),int(240*pix_per_pts)), Image.ANTIALIAS))
+            img = ImageTk.PhotoImage(Image.open('VNS_Plattform_Skizze.png').resize((int(160*pix_per_pts),int(240*pix_per_pts)), Image.LANCZOS))
             image = tk.Label(image=img)
             image.grid(row=0, column=0, rowspan=8, columnspan=2)
 
@@ -489,7 +491,7 @@ class NewGUI():
         button_row = 7
         self.button_show = tk.Button(text="Anzeigen", command=self.show)
         self.button_show.grid(row=button_row, column=2, padx=padx, pady=pady, sticky="news")
-        self.button_gif = tk.Button(text="GIF", command=self.loop)
+        self.button_gif = tk.Button(text="GIF", command=self.gif)
         self.button_gif.grid(row=button_row, column=3, padx=padx, pady=pady, sticky="news")
         self.button_process = tk.Button(text="PDF & DATA", command=self.save)
         self.button_process.grid(row=button_row, column=4, padx=padx, pady=pady, sticky="news")
@@ -517,7 +519,7 @@ class NewGUI():
 
     def save(self):
         try:
-            path = tk.filedialog.askdirectory()
+            path = tk.filedialog.askdirectory(title="Choose path")
             print(path)
             if path and self.complete:
                 calc_vns(3, path, self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
@@ -526,15 +528,14 @@ class NewGUI():
             tk.messagebox.showerror('Error', 'Unknown error!')
             return
 
-    def loop(self):
+    def gif(self):
         try:
-            path = tk.filedialog.askdirectory()
             vns_info = calc_vns(0, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
-            print(os.path.join(path, vns_info[0] + '.gif'))
-            if path and self.complete:
+            filename = tk.filedialog.asksaveasfilename(initialfile=os.path.join(vns_info[0] + '.gif'), title="Choose filename", defaultextension=".gif", filetypes=(("Graphics Interchange Format", "*.gif"),("All Files", "*.*")))
+            print(filename)
+            if filename and self.complete:
                 print("imageio version " + imageio.__version__)
-                imageio.mimsave(os.path.join(path, vns_info[0] + '.gif'),
-                                [calc_vns(2, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), th)
+                imageio.mimsave(filename, [calc_vns(2, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), th)
                                  for th in np.arange(-vns_info[1], vns_info[1], 2*vns_info[1]/20)], fps=10)
         except Exception as e:
             print(e)
