@@ -1,5 +1,5 @@
 
-global GUI_version; GUI_version = '1.3'
+global GUI_version; GUI_version = '1.4'
 
 import os
 import copy
