@@ -1,18 +1,17 @@
 
-global GUI_version; GUI_version = '1.2'
+global GUI_version; GUI_version = '1.3'
 
+import os
+import copy
+import numpy as np
+import imageio # version 2.10.5 required!!!
 import tkinter as tk
 import tkinter.filedialog
-import os
-from PIL import ImageTk, Image
-import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.colors import LightSource
-import numpy as np
+from PIL import ImageTk, Image
 from scipy.linalg import expm, norm
-import copy
 from mpl_toolkits.axes_grid1 import Divider, Size
-import imageio
 
 def process_entry(entry, result):
     try:
@@ -83,7 +82,7 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
                             "_L-" + str(int(param['L'])) + \
                             "_D-" + str(int(param['D'])) + \
                             "_H-" + str(int(param['H']))
-    print(BASENAME, theta)
+    print(BASENAME, "%.2f" % theta)
 
     ###############################################################
     # DEFINITION DER PLATTFORM
@@ -250,7 +249,10 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
     # Plattform Ansicht
 
     if mode in [1,2]:
-
+        
+        if mode == 2:
+            mpl.use("Agg")
+        
         theta = theta + 0.00001 # vertical surfaces impossible to plot
 
         # Gehe zu Zeichnen-Position
@@ -333,7 +335,7 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
                 segmentpunkte_x.append(punkt[0])
                 segmentpunkte_y.append(punkt[1])
                 segmentpunkte_z.append(punkt[2])
-            ax.plot_trisurf(segmentpunkte_x,segmentpunkte_y,segmentpunkte_z, color=[0.2,0.7,0.2], alpha=1, shade=False, antialiased=False)
+            ax.plot_trisurf(segmentpunkte_x,segmentpunkte_y,segmentpunkte_z, color=[0.2,0.6,0.2], alpha=1, shade=False, antialiased=False)
             ax.plot(segmentpunkte_x,segmentpunkte_y,segmentpunkte_z, linewidth=1, color='green')
 
             # Westsegment
@@ -346,7 +348,7 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
                 segmentpunkte_x.append(punkt[0])
                 segmentpunkte_y.append(punkt[1])
                 segmentpunkte_z.append(punkt[2])
-            ax.plot_trisurf(segmentpunkte_x,segmentpunkte_y,segmentpunkte_z, color=[0.2,0.7,0.2], alpha=1, shade=False, antialiased=False)
+            ax.plot_trisurf(segmentpunkte_x,segmentpunkte_y,segmentpunkte_z, color=[0.2,0.6,0.2], alpha=1, shade=False, antialiased=False)
             ax.plot(segmentpunkte_x,segmentpunkte_y,segmentpunkte_z, linewidth=1, color='green')
 
         # Limits
@@ -374,7 +376,8 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
     if mode == 2:
         fig.canvas.draw()       # draw the canvas, cache the renderer
         image = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
-        image  = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+        print("reshape " + str(len(image)) + " to " + str(fig.canvas.get_width_height()[::-1] + (3,)))
+        image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
         plt.close()
         return image
 
@@ -518,6 +521,7 @@ class NewGUI():
         vns_info = calc_vns(0, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
         print(os.path.join(path, vns_info[0] + '.gif'))
         if path and self.complete:
+            print("imageio version " + imageio.__version__)
             imageio.mimsave(os.path.join(path, vns_info[0] + '.gif'),
                             [calc_vns(2, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), th)
                              for th in np.arange(-vns_info[1], vns_info[1], 2*vns_info[1]/20)], fps=10)
