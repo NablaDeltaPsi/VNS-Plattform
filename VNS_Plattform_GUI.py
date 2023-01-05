@@ -63,6 +63,44 @@ def perp_point(point_a1, point_b1, point_b2):
     t = np.dot(v, point_b_norm)
     return point_b1 + t * point_b_norm
 
+def save_pdf(filename, label, size, segmentpos, segmenthoehe):
+    
+    if size == 'DIN A3':
+        din_a4_width_mm  = 420
+        din_a4_height_mm = 297
+    elif size == 'DIN A5':
+        din_a4_width_mm  = 210
+        din_a4_height_mm = 148
+    else: #DIN A4
+        din_a4_width_mm  = 297
+        din_a4_height_mm = 210
+    
+    din_a4_width_inches  = din_a4_width_mm  / 25.4
+    din_a4_height_inches = din_a4_height_mm / 25.4
+    ax_rel_width  = 0.9
+    ax_rel_height = 0.9
+
+    # figure with real units
+    fig = plt.figure(figsize = (din_a4_width_inches, din_a4_height_inches))
+    h = [Size.Fixed((1-ax_rel_width)  / 2 * din_a4_width_inches),  Size.Fixed(ax_rel_width  * din_a4_width_inches)]
+    v = [Size.Fixed((1-ax_rel_height) / 2 * din_a4_height_inches), Size.Fixed(ax_rel_height * din_a4_height_inches)]
+    divider = Divider(fig, (0, 0, 1, 1), h, v, aspect=False)
+    ax = fig.add_axes(divider.get_position(),axes_locator=divider.new_locator(nx=1, ny=1))
+    ax.set_xlim(-din_a4_width_mm  * ax_rel_width  / 2, din_a4_width_mm  * ax_rel_width  / 2)
+    ax.set_ylim(-din_a4_height_mm * ax_rel_height * 0.05, din_a4_height_mm * ax_rel_height * 0.95)
+    plt.gca().invert_yaxis()
+    ax.xaxis.tick_top()
+
+    # plot
+    plt.plot(segmentpos, segmenthoehe, linewidth = 0.5, color = 'black') #, marker='.', markersize=0.01, markeredgecolor='black'
+    plt.plot([0,0],[-din_a4_height_mm * ax_rel_height * 0.05, din_a4_height_mm * ax_rel_height * 0.95], linewidth=0.5, color='black', linestyle='--')
+    plt.text(segmentpos[-2]+3,max(segmenthoehe)/2,label,va='bottom',ha='left')
+
+    # PDF speichern
+    fig.savefig(filename)
+    plt.close(fig)
+    return
+
 def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
 
     ###############################################################
@@ -216,33 +254,9 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
                 f.write("%.6f" % segmentwinkel[i] + "\t")
                 f.write("%.6f" % segmentlageroffset[i] + "\n")
 
-        # din a4
-        din_a4_width_mm  = 297
-        din_a4_height_mm = 210
-        din_a4_width_inches  = din_a4_width_mm  / 25.4
-        din_a4_height_inches = din_a4_height_mm / 25.4
-        ax_rel_width  = 0.9
-        ax_rel_height = 0.9
-        
-        # real units
-        fig1 = plt.figure(figsize = (din_a4_width_inches, din_a4_height_inches))
-        h = [Size.Fixed((1-ax_rel_width)  / 2 * din_a4_width_inches),  Size.Fixed(ax_rel_width  * din_a4_width_inches)]
-        v = [Size.Fixed((1-ax_rel_height) / 2 * din_a4_height_inches), Size.Fixed(ax_rel_height * din_a4_height_inches)]
-        divider = Divider(fig1, (0, 0, 1, 1), h, v, aspect=False)
-        ax = fig1.add_axes(divider.get_position(),axes_locator=divider.new_locator(nx=1, ny=1))
-        ax.set_xlim(-din_a4_width_mm  * ax_rel_width  / 2, din_a4_width_mm  * ax_rel_width  / 2)
-        ax.set_ylim(-din_a4_height_mm * ax_rel_height * 0.05, din_a4_height_mm * ax_rel_height * 0.95)
-        plt.gca().invert_yaxis()
-        ax.xaxis.tick_top()
-
-        plt.plot(segmentpos, segmenthoehe, linewidth = 0.5, color = 'black') #, marker='.', markersize=0.01, markeredgecolor='black'
-        plt.plot([0,0],[-din_a4_height_mm * ax_rel_height * 0.05, din_a4_height_mm * ax_rel_height * 0.95], linewidth=0.5, color='black', linestyle='--')
-        plt.text(segmentpos[-2]+3,param['H']/2,BASENAME.replace("_",",  ").replace("-",": "),va='bottom',ha='left')
-
-        # PDF speichern
-        fig1.savefig(os.path.join(path, BASENAME  + ".pdf"))
-        plt.close(fig1)
-
+        save_pdf(os.path.join(path, BASENAME  + "_DIN_A3.pdf"), BASENAME.replace("_",",  ").replace("-",": "), 'DIN A3', segmentpos, segmenthoehe)
+        save_pdf(os.path.join(path, BASENAME  + "_DIN_A4.pdf"), BASENAME.replace("_",",  ").replace("-",": "), 'DIN A4', segmentpos, segmenthoehe)
+        save_pdf(os.path.join(path, BASENAME  + "_DIN_A5.pdf"), BASENAME.replace("_",",  ").replace("-",": "), 'DIN A5', segmentpos, segmenthoehe)
 
 
     ###############################################################
