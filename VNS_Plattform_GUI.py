@@ -507,24 +507,39 @@ class NewGUI():
         self.root.mainloop()
         
     def show(self):
-        if self.complete:
-            calc_vns(1, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
+        try:
+            if self.complete:
+                calc_vns(1, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
+        except Exception as e:
+            print(e)
+            tk.messagebox.showerror('Error', 'Unknown error!')
+            return
 
     def save(self):
-        path = tk.filedialog.askdirectory()
-        print(path)
-        if path and self.complete:
-            calc_vns(3, path, self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
+        try:
+            path = tk.filedialog.askdirectory()
+            print(path)
+            if path and self.complete:
+                calc_vns(3, path, self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
+        except Exception as e:
+            print(e)
+            tk.messagebox.showerror('Error', 'Unknown error!')
+            return
 
     def loop(self):
-        path = tk.filedialog.askdirectory()
-        vns_info = calc_vns(0, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
-        print(os.path.join(path, vns_info[0] + '.gif'))
-        if path and self.complete:
-            print("imageio version " + imageio.__version__)
-            imageio.mimsave(os.path.join(path, vns_info[0] + '.gif'),
-                            [calc_vns(2, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), th)
-                             for th in np.arange(-vns_info[1], vns_info[1], 2*vns_info[1]/20)], fps=10)
+        try:
+            path = tk.filedialog.askdirectory()
+            vns_info = calc_vns(0, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
+            print(os.path.join(path, vns_info[0] + '.gif'))
+            if path and self.complete:
+                print("imageio version " + imageio.__version__)
+                imageio.mimsave(os.path.join(path, vns_info[0] + '.gif'),
+                                [calc_vns(2, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), th)
+                                 for th in np.arange(-vns_info[1], vns_info[1], 2*vns_info[1]/20)], fps=10)
+        except Exception as e:
+            print(e)
+            tk.messagebox.showerror('Error', 'Unknown error!')
+            return
 
     def check_entries(self, *args):
         process_entry(self.entry_BG,   self.result_BG)
