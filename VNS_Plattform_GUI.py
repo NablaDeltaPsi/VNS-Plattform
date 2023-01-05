@@ -11,6 +11,7 @@ import numpy as np
 from scipy.linalg import expm, norm
 import copy
 from mpl_toolkits.axes_grid1 import Divider, Size
+import imageio
 
 def process_entry(entry, result):
     try:
@@ -64,7 +65,6 @@ def perp_point(point_a1, point_b1, point_b2):
 
 def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
 
-
     ###############################################################
     # PARAMETER
 
@@ -82,21 +82,7 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
                             "_L-" + str(int(param['L'])) + \
                             "_D-" + str(int(param['D'])) + \
                             "_H-" + str(int(param['H']))
-    print(BASENAME)
-        
-    # Parameter speichern
-    if mode==0 and not not path:
-        if not os.path.exists(path):
-            os.makedirs(path)
-        with open(os.path.join(path, BASENAME + "_Parameter.dat"), 'w') as f:
-            for key in param:
-                if key in ['BG', 'SW']:
-                    f.write(str(key) + ":  \t" + "%.2f" % (param[key] * 180 / np.pi) + "\n")
-                    #print(str(key) + ": " + "%.2f" % (param[key] * 180 / np.pi))
-                else:
-                    f.write(str(key) + ":  \t" + "%.2f" % (param[key]) + "\n")
-                    #print(str(key) + ": " + "%.0f" % (param[key]))
-
+    print(BASENAME, theta)
 
     ###############################################################
     # DEFINITION DER PLATTFORM
@@ -183,7 +169,7 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
     if not segmentwinkel:
         print("Kein einziger Punkt des Segments wurde gezeichnet!")
         print("Interrupt!")
-        sys.exit()
+        return
 
     # Rotiere gemerkte Punkte zurück
     vectors['osteck']    = rot_vectors['suedlager'] + rot_around(new_rot_vectors['osteck']    - rot_vectors['suedlager'], -np.radians(segmentwinkel[0]),  rot_vectors['erdachse'] - rot_vectors['suedlager'])
@@ -201,8 +187,18 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
     segmentgeschwindigkeit[0] = 2 * segmentgeschwindigkeit[1] - segmentgeschwindigkeit[2]
     segmentgeschwindigkeit_norm = [x/min(segmentgeschwindigkeit) for x in segmentgeschwindigkeit]
 
+    # Nur return
+    if mode==0:
+        return BASENAME, segmentwinkel[0], segmentwinkel[-1]
+
     # Ausgeben und abspeichern
-    if mode==0 and not not path:
+    if mode==3 and not not path:
+        with open(os.path.join(path, BASENAME + "_Parameter.dat"), 'w') as f:
+            for key in param:
+                if key in ['BG', 'SW']:
+                    f.write(str(key) + ":  \t" + "%.2f" % (param[key] * 180 / np.pi) + "\n")
+                else:
+                    f.write(str(key) + ":  \t" + "%.2f" % (param[key]) + "\n")
         with open(os.path.join(path, BASENAME + "_Segment.dat"), 'w') as f:
             for i in range(len(segmentpos)):
                 f.write("%.6f" % segmentpos[i] + "\t")
@@ -369,14 +365,18 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
 
         # Anzeige
         ax.set_axis_off()
+        ax.view_init(22,-30)
+
+    if mode == 1:
         plt.show()
 
-        # GIF
-        if mode==2 and not not path:
-            ani = FuncAnimation(fig, animate, interval=40, blit=True, repeat=True, frames=100)    
-            ani.save(os.path.join(path, BASENAME + ".gif"), dpi=300, writer=PillowWriter(fps=25))
-            plt.close()
-                
+    if mode == 2:
+        fig.canvas.draw()       # draw the canvas, cache the renderer
+        image = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
+        image  = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+        plt.close()
+        return image
+
 
 class NewGUI():
     def __init__(self):
@@ -484,8 +484,10 @@ class NewGUI():
 
         button_row = 7
         self.button_show = tk.Button(text="Anzeigen", command=self.show)
-        self.button_show.grid(row=button_row, column=3, padx=padx, pady=pady, sticky="news")
-        self.button_process = tk.Button(text="Speichern", command=self.save)
+        self.button_show.grid(row=button_row, column=2, padx=padx, pady=pady, sticky="news")
+        self.button_gif = tk.Button(text="GIF", command=self.loop)
+        self.button_gif.grid(row=button_row, column=3, padx=padx, pady=pady, sticky="news")
+        self.button_process = tk.Button(text="PDF & DATA", command=self.save)
         self.button_process.grid(row=button_row, column=4, padx=padx, pady=pady, sticky="news")
 
         if len(self.restore)==7:
@@ -502,19 +504,23 @@ class NewGUI():
         
     def show(self):
         if self.complete:
-            calc_vns(1, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 5)
+            calc_vns(1, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
 
     def save(self):
         path = tk.filedialog.askdirectory()
         print(path)
         if path and self.complete:
-            calc_vns(0, path, self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
+            calc_vns(3, path, self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
 
     def loop(self):
         path = tk.filedialog.askdirectory()
-        print(path)
+        vns_info = calc_vns(0, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
+        print(os.path.join(path, vns_info[0] + '.gif'))
+        print("From " + str(vns_info[1]) + " to " + str(vns_info[2]))
         if path and self.complete:
-            calc_vns(2, path, self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
+            imageio.mimsave(os.path.join(path, vns_info[0] + '.gif'),
+                            [calc_vns(2, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), th)
+                             for th in np.arange(vns_info[1], vns_info[2], -0.5)], fps=10)
 
     def check_entries(self, *args):
         process_entry(self.entry_BG,   self.result_BG)
