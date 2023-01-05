@@ -1,5 +1,5 @@
 
-global GUI_version; GUI_version = '1.4'
+global GUI_version; GUI_version = '1.5'
 
 import os
 import copy
@@ -22,18 +22,36 @@ def process_entry(entry, result):
         result.configure(state='normal')
         result.insert(0, "%.2f" % float(entry.get()))
         result.configure(state='disabled')
+        if result.get().find("<") == -1:
+            set_green(result)
+        else:
+            set_red(result)
     except:
         pass
 
 def set_result(result, text):
-        result.configure(state='normal')
-        result.delete(0, tk.END)
-        result.insert(0, text)
-        result.configure(state='disabled')
+    result.configure(state='normal')
+    result.delete(0, tk.END)
+    result.insert(0, text)
+    result.configure(state='disabled')
+    if result.get().find("<") == -1:
+        set_green(result)
+    else:
+        set_red(result)
 
 def set_entry(entry, text):
-        entry.delete(0, tk.END)
-        entry.insert(0, text)
+    entry.delete(0, tk.END)
+    entry.insert(0, text)
+        
+def set_green(entry):
+    entry.configure(state='normal')
+    entry.configure(disabledbackground='#DCFFDC')
+    entry.configure(state='disabled')
+
+def set_red(entry):
+    entry.configure(state='normal')
+    entry.configure(disabledbackground='#FFDCDC')
+    entry.configure(state='disabled')
 
 def rot_around(vec, theta, axis):
     return np.dot(expm(np.cross(np.eye(3), axis/norm(axis)*theta)), vec)
@@ -571,8 +589,9 @@ class NewGUI():
         F    = self.result_D.get()
         SW   = self.result_SW.get()
         H    = self.result_H.get()
-        Hmin = self.result_Hmin.get()
+        Hmin = self.result_Hmin.get()  
         
+        # check dependencies
         if not BG:
             set_result(self.result_BG, "Def. <BG>")
             set_result(self.result_S,  "Def. <BG>")
@@ -612,6 +631,8 @@ class NewGUI():
             set_result(self.result_H, "Def. <H>")
         if not Hmin:
             set_result(self.result_Hmin, "Def. <Hmin>")
+            
+        # check complete
         if BG and S and B and F and SW and H and Hmin:
             self.complete = 1
         else:
