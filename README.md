@@ -11,3 +11,5 @@ Mit diesem Programm kann man die Segmente ohne Beschränkung auf die Ellipsenfor
 ![grafik](https://user-images.githubusercontent.com/98178269/210575836-fa726ee5-180c-43d1-957d-cb7094999d0e.png)
 
 ![grafik](https://user-images.githubusercontent.com/98178269/210576156-a3bcfdf3-93e8-4956-ad13-232114d9f376.png)
+
+![Segmente_klein](https://user-images.githubusercontent.com/98178269/210732111-be4c0c6b-e834-4fec-8e6b-9260b7e00e0b.png)
