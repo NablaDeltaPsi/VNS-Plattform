@@ -1,5 +1,5 @@
 
-global GUI_version; GUI_version = '1.1'
+global GUI_version; GUI_version = '1.2'
 
 import tkinter as tk
 import tkinter.filedialog
@@ -7,6 +7,7 @@ import os
 from PIL import ImageTk, Image
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LightSource
 import numpy as np
 from scipy.linalg import expm, norm
 import copy
@@ -189,7 +190,7 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
 
     # Nur return
     if mode==0:
-        return BASENAME, segmentwinkel[0], segmentwinkel[-1]
+        return BASENAME, segmentwinkel[0]
 
     # Ausgeben und abspeichern
     if mode==3 and not not path:
@@ -272,30 +273,30 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
             rot_vectors['westinnen'],
             rot_vectors['westeck'],
             )
-        ax.plot_trisurf(x,y,z, color='grey', alpha=0.4)
+        ax.plot_trisurf(x,y,z, color=[0.6,0.6,0.6], alpha=0.6, shade=False, antialiased=False)
 
         # Plattform-Kanten
         [x,y,z] = points_to_coordinates([0,0,0], rot_vectors['suedlager'])
-        ax.plot(x,y,z, linewidth=1, color='grey')
+        ax.plot(x,y,z, linewidth=1, color=[0.2,0.2,0.2])
         [x,y,z] = points_to_coordinates(rot_vectors['suedlager'], rot_vectors['osteck'])
-        ax.plot(x,y,z, linewidth=1, color='grey')
+        ax.plot(x,y,z, linewidth=1, color=[0.2,0.2,0.2])
         [x,y,z] = points_to_coordinates(rot_vectors['suedlager'], rot_vectors['westeck'])
-        ax.plot(x,y,z, linewidth=1, color='grey')
+        ax.plot(x,y,z, linewidth=1, color=[0.2,0.2,0.2])
         [x,y,z] = points_to_coordinates(rot_vectors['osteck'], rot_vectors['ostinnen'])
-        ax.plot(x,y,z, linewidth=1, color='grey')
+        ax.plot(x,y,z, linewidth=1, color=[0.2,0.2,0.2])
         [x,y,z] = points_to_coordinates(rot_vectors['westeck'], rot_vectors['westinnen'])
-        ax.plot(x,y,z, linewidth=1, color='grey')
+        ax.plot(x,y,z, linewidth=1, color=[0.2,0.2,0.2])
         [x,y,z] = points_to_coordinates(rot_vectors['ostinnen'], rot_vectors['westinnen'])
-        ax.plot(x,y,z, linewidth=1, color='grey')
+        ax.plot(x,y,z, linewidth=1, color=[0.2,0.2,0.2])
 
         # Erdachse
         [x,y,z] = points_to_coordinates(rot_vectors['suedlager'], rot_vectors['erdachse'])
         ax.plot(x,y,z, linewidth=1, color='red')
 
         # Nordlager
-        [x,y,z] = points_to_coordinates(0.9 * rot_vectors['ostlager'], 1.1 * rot_vectors['ostlager'])
+        [x,y,z] = points_to_coordinates([0,0,0], 1.1 * rot_vectors['ostlager'])
         ax.plot(x,y,z, linewidth=1, color='blue')
-        [x,y,z] = points_to_coordinates(0.9 * rot_vectors['westlager'], 1.1 * rot_vectors['westlager'])
+        [x,y,z] = points_to_coordinates([0,0,0], 1.1 * rot_vectors['westlager'])
         ax.plot(x,y,z, linewidth=1, color='blue')
 
         # Segmentebenen
@@ -332,7 +333,7 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
                 segmentpunkte_x.append(punkt[0])
                 segmentpunkte_y.append(punkt[1])
                 segmentpunkte_z.append(punkt[2])
-            ax.plot_trisurf(segmentpunkte_x,segmentpunkte_y,segmentpunkte_z, color='green', alpha=0.6)
+            ax.plot_trisurf(segmentpunkte_x,segmentpunkte_y,segmentpunkte_z, color=[0.2,0.7,0.2], alpha=1, shade=False, antialiased=False)
             ax.plot(segmentpunkte_x,segmentpunkte_y,segmentpunkte_z, linewidth=1, color='green')
 
             # Westsegment
@@ -345,11 +346,11 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
                 segmentpunkte_x.append(punkt[0])
                 segmentpunkte_y.append(punkt[1])
                 segmentpunkte_z.append(punkt[2])
-            ax.plot_trisurf(segmentpunkte_x,segmentpunkte_y,segmentpunkte_z, color='green', alpha=0.6)
+            ax.plot_trisurf(segmentpunkte_x,segmentpunkte_y,segmentpunkte_z, color=[0.2,0.7,0.2], alpha=1, shade=False, antialiased=False)
             ax.plot(segmentpunkte_x,segmentpunkte_y,segmentpunkte_z, linewidth=1, color='green')
 
         # Limits
-        boxwidth = param['L'] +100
+        boxwidth = param['L']*1.2
         ax.set_xlim(-5, -5+boxwidth)
         ax.set_ylim(-boxwidth/2, boxwidth/2)
         ax.set_zlim(0, boxwidth)
@@ -361,7 +362,7 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
             [ax.get_xlim()[1],ax.get_ylim()[0],0],
             [ax.get_xlim()[1],ax.get_ylim()[1],0]
             )
-        ax.plot_trisurf(x,y,z, color='grey', alpha=0.1)
+        ax.plot_trisurf(x,y,z, color='grey', alpha=0.1, shade=False)
 
         # Anzeige
         ax.set_axis_off()
@@ -516,11 +517,10 @@ class NewGUI():
         path = tk.filedialog.askdirectory()
         vns_info = calc_vns(0, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), 0)
         print(os.path.join(path, vns_info[0] + '.gif'))
-        print("From " + str(vns_info[1]) + " to " + str(vns_info[2]))
         if path and self.complete:
             imageio.mimsave(os.path.join(path, vns_info[0] + '.gif'),
                             [calc_vns(2, '', self.result_BG.get(), self.result_L.get(), self.result_D.get(), self.result_H.get(), self.result_Hmin.get(), th)
-                             for th in np.arange(vns_info[1], vns_info[2], -0.5)], fps=10)
+                             for th in np.arange(-vns_info[1], vns_info[1], 2*vns_info[1]/20)], fps=10)
 
     def check_entries(self, *args):
         process_entry(self.entry_BG,   self.result_BG)
