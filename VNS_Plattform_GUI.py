@@ -112,7 +112,7 @@ def save_pdf(filename, label, size, segmentpos, segmenthoehe):
     # plot
     plt.plot(segmentpos, segmenthoehe, linewidth = 0.5, color = 'black') #, marker='.', markersize=0.01, markeredgecolor='black'
     plt.plot([0,0],[-din_a4_height_mm * ax_rel_height * 0.05, din_a4_height_mm * ax_rel_height * 0.95], linewidth=0.5, color='black', linestyle='--')
-    plt.text(segmentpos[-2]+3,max(segmenthoehe)/2,label,va='bottom',ha='left')
+    plt.text(segmentpos[-2]+3,3,label,va='top',ha='left')
 
     # PDF speichern
     fig.savefig(filename)
@@ -126,18 +126,19 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
 
     param = {}
     param['L']  = float(L)
-    param['D']  = float(D)/2
-    param['SW'] = np.arctan(param['D']/(param['L']))
+    param['D']  = float(D)
+    param['SW'] = np.arctan(param['D']/2/(param['L']))
     param['BG'] = np.radians(float(BG))
     param['H']  = float(H)
     param['Hmin'] = float(Hmin)
-    param['J']  = param['L'] + param['D'] * np.tan(param['SW'])
+    param['J']  = param['L'] + param['D'] / 2 * np.tan(param['SW'])
 
     # Namen
     BASENAME = "Segment" +  "_BG-" + str(int(round(180 / np.pi * param['BG'] * 10, 0))) + \
                             "_L-" + str(int(param['L'])) + \
                             "_D-" + str(int(param['D'])) + \
-                            "_H-" + str(int(param['H']))
+                            "_H-" + str(int(param['H'])) + \
+                            "_Hmin-" + str(int(param['Hmin']))
     print(BASENAME, "%.2f" % theta)
 
     ###############################################################
@@ -148,10 +149,10 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
     vectors['erdachse'] = vectors['suedlager'] + param['L'] * np.array([np.cos(param['BG']), 0, np.sin(param['BG'])])
     vectors['nordspitze']  = np.array([param['J'], 0,           param['H']])
     vectors['nordlot']     = np.array([param['J'], 0,           0])
-    vectors['ostlager']    = np.array([param['L'], -param['D'], 0])
-    vectors['westlager']   = np.array([param['L'], +param['D'], 0])
-    vectors['ostsegment']  = np.array([param['L'], -param['D'], param['H']])
-    vectors['westsegment'] = np.array([param['L'], +param['D'], param['H']])
+    vectors['ostlager']    = np.array([param['L'], -param['D']/2, 0])
+    vectors['westlager']   = np.array([param['L'], +param['D']/2, 0])
+    vectors['ostsegment']  = np.array([param['L'], -param['D']/2, param['H']])
+    vectors['westsegment'] = np.array([param['L'], +param['D']/2, param['H']])
     rot_vectors = copy.deepcopy(vectors)
     new_rot_vectors = copy.deepcopy(vectors)    
     
@@ -249,12 +250,6 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
 
     # Ausgeben und abspeichern
     if mode==3 and not not path:
-        with open(os.path.join(path, BASENAME + "_Parameter.dat"), 'w') as f:
-            for key in param:
-                if key in ['BG', 'SW']:
-                    f.write(str(key) + ":  \t" + "%.2f" % (param[key] * 180 / np.pi) + "\n")
-                else:
-                    f.write(str(key) + ":  \t" + "%.2f" % (param[key]) + "\n")
         with open(os.path.join(path, BASENAME + "_Segment.dat"), 'w') as f:
             for i in range(len(segmentpos)):
                 f.write("%.6f" % segmentpos[i] + "\t")
@@ -272,9 +267,9 @@ def calc_vns(mode, path, BG, L, D, H, Hmin, theta):
                 f.write("%.6f" % segmentwinkel[i] + "\t")
                 f.write("%.6f" % segmentlageroffset[i] + "\n")
 
-        save_pdf(os.path.join(path, BASENAME  + "_DIN_A3.pdf"), BASENAME.replace("_",",  ").replace("-",": "), 'DIN A3', segmentpos, segmenthoehe)
-        save_pdf(os.path.join(path, BASENAME  + "_DIN_A4.pdf"), BASENAME.replace("_",",  ").replace("-",": "), 'DIN A4', segmentpos, segmenthoehe)
-        save_pdf(os.path.join(path, BASENAME  + "_DIN_A5.pdf"), BASENAME.replace("_",",  ").replace("-",": "), 'DIN A5', segmentpos, segmenthoehe)
+        save_pdf(os.path.join(path, BASENAME  + "_DIN_A3.pdf"), BASENAME.replace("_",",  ").replace("-",": ").replace("Segment,  ",""), 'DIN A3', segmentpos, segmenthoehe)
+        save_pdf(os.path.join(path, BASENAME  + "_DIN_A4.pdf"), BASENAME.replace("_",",  ").replace("-",": ").replace("Segment,  ",""), 'DIN A4', segmentpos, segmenthoehe)
+        save_pdf(os.path.join(path, BASENAME  + "_DIN_A5.pdf"), BASENAME.replace("_",",  ").replace("-",": ").replace("Segment,  ",""), 'DIN A5', segmentpos, segmenthoehe)
 
 
     ###############################################################
