@@ -4,7 +4,7 @@ global GUI_version; GUI_version = '1.5'
 import os
 import copy
 import numpy as np
-import imageio # version 2.10.5 required!!!
+import imageio # version 2.10.5 required!
 import tkinter as tk
 import tkinter.filedialog
 import matplotlib as mpl
@@ -455,8 +455,6 @@ class NewGUI():
         self.label_BG.grid(row=BG_row, column=2, sticky='w')
         self.entry_BG = tk.Entry()
         self.entry_BG.grid(row=BG_row, column=3, padx=padx, pady=pady, sticky='news')
-        self.entry_BG.bind('<KeyRelease>', self.check_entries)
-        self.entry_BG.bind('<FocusOut>', self.check_entries)
         self.result_BG = tk.Entry(state='disabled')
         self.result_BG.grid(row=BG_row, column=4, padx=padx, pady=pady, sticky='news')
 
@@ -465,8 +463,6 @@ class NewGUI():
         self.label_S.grid(row=S_row, column=2, sticky='w')
         self.entry_S = tk.Entry()
         self.entry_S.grid(row=S_row, column=3, padx=padx, pady=pady, sticky='news')
-        self.entry_S.bind('<KeyRelease>', self.check_entries)
-        self.entry_S.bind('<FocusOut>', self.check_entries)
         self.result_S = tk.Entry(state='disabled')
         self.result_S.grid(row=S_row, column=4, padx=padx, pady=pady, sticky='news')
 
@@ -475,8 +471,6 @@ class NewGUI():
         self.label_L.grid(row=B_row, column=2, sticky='w')
         self.entry_L = tk.Entry()
         self.entry_L.grid(row=B_row, column=3, padx=padx, pady=pady, sticky='news')
-        self.entry_L.bind('<KeyRelease>', self.check_entries)
-        self.entry_L.bind('<FocusOut>', self.check_entries)
         self.result_L = tk.Entry(state='disabled')
         self.result_L.grid(row=B_row, column=4, padx=padx, pady=pady, sticky='news')
 
@@ -485,8 +479,6 @@ class NewGUI():
         self.label_D.grid(row=F_row, column=2, sticky='w')
         self.entry_D = tk.Entry()
         self.entry_D.grid(row=F_row, column=3, padx=padx, pady=pady, sticky='news')
-        self.entry_D.bind('<KeyRelease>', self.check_entries)
-        self.entry_D.bind('<FocusOut>', self.check_entries)
         self.result_D = tk.Entry(state='disabled')
         self.result_D.grid(row=F_row, column=4, padx=padx, pady=pady, sticky='news')        
 
@@ -495,8 +487,6 @@ class NewGUI():
         self.label_SW.grid(row=SW_row, column=2, sticky='w')
         self.entry_SW = tk.Entry()
         self.entry_SW.grid(row=SW_row, column=3, padx=padx, pady=pady, sticky='news')
-        self.entry_SW.bind('<KeyRelease>', self.check_entries)
-        self.entry_SW.bind('<FocusOut>', self.check_entries)
         self.result_SW = tk.Entry(state='disabled')
         self.result_SW.grid(row=SW_row, column=4, padx=padx, pady=pady, sticky='news')
 
@@ -505,8 +495,6 @@ class NewGUI():
         self.label_H.grid(row=H_row, column=2, sticky='w')
         self.entry_H = tk.Entry()
         self.entry_H.grid(row=H_row, column=3, padx=padx, pady=pady, sticky='news')
-        self.entry_H.bind('<KeyRelease>', self.check_entries)
-        self.entry_H.bind('<FocusOut>', self.check_entries)
         self.result_H = tk.Entry(state='disabled')
         self.result_H.grid(row=H_row, column=4, padx=padx, pady=pady, sticky='news')
 
@@ -515,11 +503,9 @@ class NewGUI():
         self.label_Hmin.grid(row=Hmin_row, column=2, sticky='w')
         self.entry_Hmin = tk.Entry()
         self.entry_Hmin.grid(row=Hmin_row, column=3, padx=padx, pady=pady, sticky='news')
-        self.entry_Hmin.bind('<KeyRelease>', self.check_entries)
-        self.entry_Hmin.bind('<FocusOut>', self.check_entries)
         self.result_Hmin = tk.Entry(state='disabled')
         self.result_Hmin.grid(row=Hmin_row, column=4, padx=padx, pady=pady, sticky='news')
-
+        
         button_row = 7
         self.button_show = tk.Button(text="Anzeigen", command=self.show)
         self.button_show.grid(row=button_row, column=2, padx=padx, pady=pady, sticky="news")
@@ -528,14 +514,14 @@ class NewGUI():
         self.button_process = tk.Button(text="PDF & DATA", command=self.save)
         self.button_process.grid(row=button_row, column=4, padx=padx, pady=pady, sticky="news")
 
-        if len(self.restore)==7:
-            set_entry(self.entry_BG,   self.restore[0])
-            set_entry(self.entry_S,    self.restore[1])
-            set_entry(self.entry_L,    self.restore[2])
-            set_entry(self.entry_D,    self.restore[3])
-            set_entry(self.entry_SW,   self.restore[4])
-            set_entry(self.entry_H,    self.restore[5])
-            set_entry(self.entry_Hmin, self.restore[6])
+        self.entries = [self.entry_BG, self.entry_S, self.entry_L, self.entry_D, self.entry_SW, self.entry_H, self.entry_Hmin]
+        self.results = [self.result_BG, self.result_S, self.result_L, self.result_D, self.result_SW, self.result_H, self.result_Hmin]
+
+        for i in range(len(self.entries)):
+            self.entries[i].bind('<KeyRelease>', self.check_entries)
+            self.entries[i].bind('<FocusOut>', self.check_entries)
+            if len(self.restore)==7:
+                set_entry(self.entries[i], self.restore[i])
 
         self.check_entries()
         self.root.mainloop()
@@ -575,13 +561,8 @@ class NewGUI():
             return
 
     def check_entries(self, *args):
-        process_entry(self.entry_BG,   self.result_BG)
-        process_entry(self.entry_S,    self.result_S)
-        process_entry(self.entry_L,    self.result_L)
-        process_entry(self.entry_D,    self.result_D)
-        process_entry(self.entry_SW,   self.result_SW)
-        process_entry(self.entry_H,    self.result_H)
-        process_entry(self.entry_Hmin, self.result_Hmin)
+        for i in range(len(self.entries)):
+            process_entry(self.entries[i], self.results[i])
         
         BG   = self.result_BG.get()
         S    = self.result_S.get()
