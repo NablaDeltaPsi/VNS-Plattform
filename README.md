@@ -2,7 +2,7 @@ Python-GUI zur Berechnung der Form von Vertikalsegmenten für EQ-Plattformen
 
 Für Windows-Benutzer ist unter Releases eine ZIP-Datei mit kompiliertem Programm verfügbar. Zum Starten nach Herunterladen und Entzippen "VNS_Plattform_GUI.exe" ausführen.
 
-![grafik](https://user-images.githubusercontent.com/98178269/210988704-3bb54be1-1c79-4f83-9816-d4481861e2be.png)
+![grafik](https://user-images.githubusercontent.com/98178269/210998622-e20bc69e-b304-4358-8e68-770002d0fd5c.png)
 
 Viele Spiegelteleskope sind zu groß, um sie äquatorial auf einem Stativ zu montieren. Stattdessen werden sie azimuthal montiert und heißen dann "Dobson" Teleskope. Um bei hohen Vergrößerungen dennoch die Sternbewegung motorisiert nachverfolgen zu können, kann die Azimut-Montierung aber auf eine sogenannte Äquatorial-Plattform (EQ-Plattform) gestellt werden. Die EQ-Plattform kippt das Teleskop wie eine "echte" äquatoriale Montierung auf einem Kegel um eine Parallele zur Erdachse und muss nur regelmäßig zurückgesetzt werden.
 
@@ -14,10 +14,10 @@ Mit diesem Programm kann man die Vertikalsegmente ohne Näherung auf die Ellipse
 
 ![grafik](https://user-images.githubusercontent.com/98178269/210987938-e951ff90-2473-4896-ac9a-e25749bd5f45.png)
 
-Sind schließlich alle Felder grün, kann man unter "Anzeigen" die Plattform in 3D aus verschiedenen Richtungen betrachten, sowie unter "GIF" die obenstehende Animation erzeugen. Unter PDF & DATA werden PDFs (DIN A3, A4 und A5) der Segmente erzeugt. Die vertikale Linie bzw. x=0 definiert dabei den Punkt an dem die Senkrechte vom Südlager das Segment schneiden sollte, und somit die Position der Segmente an der Plattform. Man beachte dass x=0 nicht in der horizontalen Mitte des Segments liegt, sondern etwas in Richtung Segmentspitzen verschoben! Mit abgespeichert werden außerdem Textdateien mit Daten zu den Entwicklungen der Nachführ-Geschwindigkeit und der Position der Segmente auf den Lagern.
+Sind schließlich alle Felder grün, kann man unter "Anzeigen" die Plattform in 3D aus verschiedenen Richtungen betrachten, sowie unter "GIF" die obenstehende Animation erzeugen. Unter PDF & DATA werden PDFs (DIN A3, A4 und A5) der Segmente erzeugt. Die vertikale Linie bzw. x=0 definiert dabei den Punkt an dem die Senkrechte vom Südlager das Segment schneiden sollte, und somit die Position der Segmente an der Plattform. Man beachte dass x=0 nicht in der horizontalen Mitte des Segments liegt, sondern etwas in Richtung Segmentspitzen verschoben! Mit abgespeichert werden außerdem Textdateien mit Daten zu den Entwicklungen der Nachführ-Geschwindigkeit und der Position der Segmente auf den Lagern sowie die Form der Segmente als Datentabelle.
 
-![grafik](https://user-images.githubusercontent.com/98178269/210990275-fc75a5ad-3dc8-420f-9b4c-dbf7a27c2fc1.png)
-![grafik](https://user-images.githubusercontent.com/98178269/210991366-43d81f80-47b9-43bd-bc28-350a863521b9.png)
+![grafik](https://user-images.githubusercontent.com/98178269/210996843-454e35bf-4425-441b-9683-359f90fd6ebe.png)
+![grafik](https://user-images.githubusercontent.com/98178269/210998421-b428adba-ea47-4749-b356-60c60b3b3c81.png)
 
 Nun kann man nicht nur Segmente für die eigene Plattform berechnen, sondern auch mit den Parametern experimentieren und ihren Einfluss auf die Segmentform bzw. das Verhalten der Plattform analysieren:
 
