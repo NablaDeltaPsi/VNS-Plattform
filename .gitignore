@@ -1,0 +1,8 @@
+.*
+*.spec
+*.conf
+*.bat
+*.lnk
+*.csv
+*/
+!readme*
